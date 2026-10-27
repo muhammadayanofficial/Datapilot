@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1020">
+
+    <title>DataPilot AI | Business Analytics</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', filename='js/app.js') }}"
+        defer
+    ></script>
+</head>
+
+<body>
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <a class="brand" href="#overview">
+            <span class="brand-mark">DP</span>
+            <span class="brand-copy">
+                <strong>DataPilot AI</strong>
+                <small>BUSINESS ANALYTICS</small>
+            </span>
+        </a>
+
+        <p class="sidebar-label">WORKSPACE</p>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+            <a class="nav-link active" href="#overview">Overview</a>
+            <a class="nav-link" href="#sales-entry">Add a sale</a>
+            <a class="nav-link" href="#ask-datapilot">Ask DataPilot</a>
+            <a class="nav-link" href="#product-performance">Product performance</a>
+            <a class="nav-link" href="#sales-history">Sales records</a>
+            <a class="nav-link" href="#insight-history">Analysis history</a>
+        </nav>
+
+        <div class="sidebar-note">
+            <span>DATA SOURCE</span>
+            <strong>Local SQLite database</strong>
+            <p>All sales are stored locally on this computer.</p>
+        </div>
+    </aside>
+
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb">Workspace / Overview</p>
+                <h1>Business overview</h1>
+            </div>
+
+            <span class="status-label">
+                <span class="status-dot"></span>
+                Local workspace
+            </span>
+        </header>
+
+
+        <section class="hero" id="overview">
+            <div class="hero-copy">
+                <p class="eyebrow">BUSINESS INTELLIGENCE</p>
+                <h2>
+                    Know your numbers.<br>
+                    <span>Make better decisions.</span>
+                </h2>
+                <p>
+                    Explore your sales, understand product performance,
+                    and ask questions about your business in plain English.
+                </p>
+                <a class="primary-link" href="#ask-datapilot">
+                    Ask a business question
+                </a>
+            </div>
+
+            <div class="hero-graphic" aria-hidden="true">
+                <div class="graphic-ring ring-one"></div>
+                <div class="graphic-ring ring-two"></div>
+                <div class="graphic-center">DP</div>
+            </div>
+        </section>
+
+
+        <section class="metrics-grid" aria-label="Business metrics">
+
+            <article class="metric-card">
+                <p>Total revenue</p>
+                <h2>PKR {{ "{:,.0f}".format(stats.total_revenue) }}</h2>
+                <span>Based on recorded sales</span>
+            </article>
+
+            <article class="metric-card">
+                <p>Units sold</p>
+                <h2>{{ "{:,}".format(stats.total_units) }}</h2>
+                <span>Total recorded quantity</span>
+            </article>
+
+            <article class="metric-card">
+                <p>Sales records</p>
+                <h2>{{ "{:,}".format(stats.sale_records) }}</h2>
+                <span>Recorded transactions</span>
+            </article>
+
+            <article class="metric-card">
+                <p>Average sale value</p>
+                <h2>PKR {{ "{:,.0f}".format(stats.average_sale) }}</h2>
+                <span>Revenue divided by records</span>
+            </article>
+
+        </section>
+
+
+        <section class="content-grid">
+
+            <article class="panel" id="sales-entry">
+                <div class="panel-heading">
+                    <div>
+                        <p class="section-kicker">RECORD MANAGEMENT</p>
+                        <h2>Add a sale</h2>
+                        <p>Enter a transaction to update the dashboard.</p>
+                    </div>
+                </div>
+
+                <form id="sale-form">
+
+                    <div class="field-group">
+                        <label for="product-name">Product name</label>
+                        <input
+                            id="product-name"
+                            type="text"
+                            maxlength="100"
+                            placeholder="Example: Black T-Shirt"
+                            required
+                        >
+                    </div>
+
+                    <div class="field-group">
+                        <label for="category">Category</label>
+                        <input
+                            id="category"
+                            type="text"
+                            maxlength="60"
+                            placeholder="Example: Apparel"
+                            required
+                        >
+                    </div>
+
+                    <div class="two-columns">
+                        <div class="field-group">
+                            <label for="quantity">Units sold</label>
+                            <input
+                                id="quantity"
+                                type="number"
+                                min="1"
+                                max="1000000"
+                                step="1"
+                                value="1"
+                                required
+                            >
+                        </div>
+
+                        <div class="field-group">
+                            <label for="unit-price">Unit price (PKR)</label>
+                            <input
+                                id="unit-price"
+                                type="number"
+                                min="0.01"
+                                max="100000000"
+                                step="0.01"
+                                placeholder="1500"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="sale-date">Sale date</label>
+                        <input
+                            id="sale-date"
+                            type="date"
+                            value="{{ today }}"
+                            required
+                        >
+                    </div>
+
+                    <p class="form-message" id="sale-message" role="status"></p>
+
+                    <button type="submit" class="primary-button" id="save-sale">
+                        Save sale
+                    </button>
+                </form>
+            </article>
+
+
+            <article class="panel" id="ask-datapilot">
+                <div class="panel-heading">
+                    <div>
+                        <p class="section-kicker">AI ANALYST</p>
+                        <h2>Ask DataPilot</h2>
+                        <p>Ask a question about your recorded sales.</p>
+                    </div>
+                </div>
+
+                <form id="question-form">
+                    <div class="field-group">
+                        <label for="business-question">Your question</label>
+
+                        <textarea
+                            id="business-question"
+                            rows="4"
+                            maxlength="500"
+                            placeholder="Which product generated the most revenue?"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="suggested-questions">
+                        <p>TRY A QUESTION</p>
+
+                        <button
+                            class="question-chip"
+                            type="button"
+                            data-question="Which product generated the most revenue?"
+                        >
+                            Top revenue product
+                        </button>
+
+                        <button
+                            class="question-chip"
+                            type="button"
+                            data-question="Which category generated the most revenue?"
+                        >
+                            Best category
+                        </button>
+
+                        <button
+                            class="question-chip"
+                            type="button"
+                            data-question="Summarize my sales performance and suggest one useful improvement."
+                        >
+                            Business summary
+                        </button>
+                    </div>
+
+                    <p class="form-message" id="question-message" role="status"></p>
+
+                    <button type="submit" class="primary-button" id="ask-button">
+                        Analyze question
+                    </button>
+                </form>
+
+                <section class="answer-panel" id="answer-panel" hidden>
+                    <div class="answer-header">
+                        <h3>Analysis</h3>
+                        <span id="answer-model"></span>
+                    </div>
+
+                    <p id="answer-text"></p>
+
+                    <p class="answer-disclaimer">
+                        AI-generated interpretation. Verify important business
+                        decisions against your source records.
+                    </p>
+                </section>
+            </article>
+
+        </section>
+
+
+        <section class="panel" id="product-performance">
+            <div class="panel-heading">
+                <div>
+                    <p class="section-kicker">PERFORMANCE</p>
+                    <h2>Product performance</h2>
+                    <p>Products ranked by recorded revenue.</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Units sold</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.product_name }}</td>
+                            <td>{{ product.category }}</td>
+                            <td>{{ "{:,}".format(product.units_sold) }}</td>
+                            <td>PKR {{ "{:,.0f}".format(product.revenue) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4">No product data is available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <section class="panel" id="sales-history">
+            <div class="panel-heading">
+                <div>
+                    <p class="section-kicker">TRANSACTION LOG</p>
+                    <h2>Recent sales</h2>
+                    <p>Latest recorded sales. You can remove an incorrect record.</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Product</th>
+                            <th>Units</th>
+                            <th>Unit price</th>
+                            <th>Sale revenue</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="sales-table-body">
+                        {% for sale in sales %}
+                        <tr
+                            data-sale-id="{{ sale.id }}"
+                            data-product-name="{{ sale.product_name }}"
+                        >
+                            <td>{{ sale.sale_date }}</td>
+                            <td>{{ sale.product_name }}</td>
+                            <td>{{ sale.quantity }}</td>
+                            <td>PKR {{ "{:,.2f}".format(sale.unit_price) }}</td>
+                            <td>PKR {{ "{:,.2f}".format(sale.revenue) }}</td>
+                            <td>
+                                <button
+                                    class="text-button delete-sale"
+                                    type="button"
+                                    data-action="delete-sale"
+                                >
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6">No sales recorded.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <section class="panel" id="insight-history">
+            <div class="panel-heading">
+                <div>
+                    <p class="section-kicker">SAVED ANALYSES</p>
+                    <h2>Analysis history</h2>
+                    <p>Your recent business questions and AI answers.</p>
+                </div>
+            </div>
+
+            <div id="insight-list" class="insight-list">
+                {% for insight in insights %}
+                <article class="insight-card">
+                    <div class="insight-meta">
+                        <span>Saved analysis</span>
+                        <time>{{ insight.created_at }}</time>
+                    </div>
+
+                    <h3>{{ insight.question }}</h3>
+                    <p>{{ insight.answer }}</p>
+                </article>
+                {% else %}
+                <p class="empty-state" id="insight-empty">
+                    No analyses saved yet. Ask your first business question above.
+                </p>
+                {% endfor %}
+            </div>
+        </section>
+
+
+        <footer class="page-footer">
+            <span>DataPilot AI</span>
+            <span>Python, Flask, SQLite and Gemini</span>
+        </footer>
+
+    </main>
+</div>
+</body>
+</html>
